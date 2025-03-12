@@ -36,7 +36,7 @@ pipeline {
           }
         }
 
-        stage('Build') {
+        stage('Install netlify') {
           agent {
             docker {
               image 'node:18-alpine'
