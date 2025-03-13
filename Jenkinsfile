@@ -4,67 +4,96 @@ pipeline {
     environment {
         NETLIFY_SITE_ID = 'c6b09b1d-7ec2-43f9-8f7e-9de8ad3cbe27'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
+        GITHUB_TOKEN = credentials('github-token')
     }
 
     stages {
+        stage('Initialize') {
+            steps {
+                script {
+                    githubNotify credentialsId: env.GITHUB_TOKEN, context: 'Build', status: 'PENDING'
+                    githubNotify credentialsId: env.GITHUB_TOKEN, context: 'Testing', status: 'PENDING'
+                    githubNotify credentialsId: env.GITHUB_TOKEN, context: 'Deploy', status: 'PENDING'
+                }
+            }
+        }
+
         stage('Build') {
-          agent {
-            docker {
-              image 'node:18-alpine'
-              reuseNode true
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
             }
-          }
-
-          steps {
-            sh '''
-              npm ci
-              ls -alrth
-              npm run build
-            '''
-          }
+            steps {
+                script {
+                    try {
+                        sh '''
+                            npm ci
+                            ls -alrth
+                            npm run build
+                        '''
+                        githubNotify credentialsId: env.GITHUB_TOKEN, context: 'Build', status: 'SUCCESS'
+                    } catch (Exception e) {
+                        githubNotify credentialsId: env.GITHUB_TOKEN, context: 'Build', status: 'FAILURE'
+                        throw e
+                    }
+                }
+            }
         }
 
-        stage('Testing'){
-
-          agent {
-            docker {
-              image 'node:18-alpine'
-              reuseNode true
+        stage('Testing') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
             }
-          }
-
-          steps{
-              sh '''
-                test -f build/index.html
-                npm test
-              '''
-          }
+            steps {
+                script {
+                    try {
+                        sh '''
+                            test -f build/index.html
+                            npm test
+                        '''
+                        githubNotify credentialsId: env.GITHUB_TOKEN, context: 'Testing', status: 'SUCCESS'
+                    } catch (Exception e) {
+                        githubNotify credentialsId: env.GITHUB_TOKEN, context: 'Testing', status: 'FAILURE'
+                        throw e
+                    }
+                }
+            }
         }
 
-        stage('Install netlify') {
-          agent {
-            docker {
-              image 'node:18-alpine'
-              reuseNode true
+        stage('Deploy') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
             }
-          }
-
-          steps {
-            sh '''
-              npm install netlify-cli
-              npx netlify --version
-              npx netlify status
-              npx netlify deploy --dir=build --prod
-            
-            '''
-          }
+            steps {
+                script {
+                    try {
+                        sh '''
+                            npm install netlify-cli
+                            npx netlify --version
+                            npx netlify status
+                            npx netlify deploy --dir=build --prod
+                        '''
+                        githubNotify credentialsId: env.GITHUB_TOKEN, context: 'Deploy', status: 'SUCCESS'
+                    } catch (Exception e) {
+                        githubNotify credentialsId: env.GITHUB_TOKEN, context: 'Deploy', status: 'FAILURE'
+                        throw e
+                    }
+                }
+            }
         }
     }
 
     post {
-      
-      always {
-        junit 'test-results/junit.xml'
-      }
+        always {
+            junit 'test-results/junit.xml'
+        }
     }
 }
