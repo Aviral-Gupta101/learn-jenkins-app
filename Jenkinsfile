@@ -4,16 +4,30 @@ pipeline {
     environment {
         NETLIFY_SITE_ID = 'c6b09b1d-7ec2-43f9-8f7e-9de8ad3cbe27'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
-        // GITHUB_TOKEN = credentials('github_token_new')
+        GITHUB_TOKEN = credentials('github_token_new')
     }
 
     stages {
+
+      stage('Check Credential') {
+            steps {
+                script {
+                    echo ''
+                    // Echoing only if it's set (security-safe)
+                    if (env.GITHUB_TOKEN) {
+                        echo "GitHub token is set!"
+                    } else {
+                        echo "GitHub token is NOT set!"
+                    }
+                }
+            }
+
         stage('Initialize') {
             steps {
                 script {
-                    githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_token_new', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Build', status: 'PENDING'
-                    githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_token_new', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Testing', status: 'PENDING'
-                    githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_token_new', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Deploy', status: 'PENDING'
+                    githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_creds', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Build', status: 'PENDING'
+                    githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_creds', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Testing', status: 'PENDING'
+                    githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_creds', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Deploy', status: 'PENDING'
                 }
             }
         }
@@ -33,9 +47,9 @@ pipeline {
                             ls -alrth
                             npm run build
                         '''
-                        githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_token_new', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Build', status: 'SUCCESS'
+                        githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_creds', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Build', status: 'SUCCESS'
                     } catch (Exception e) {
-                        githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_token_new', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Build', status: 'FAILURE'
+                        githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_creds', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Build', status: 'FAILURE'
                         throw e
                     }
                 }
@@ -56,9 +70,9 @@ pipeline {
                             test -f build/index.html
                             npm test
                         '''
-                        githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_token_new', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Testing', status: 'SUCCESS'
+                        githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_creds', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Testing', status: 'SUCCESS'
                     } catch (Exception e) {
-                        githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_token_new', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Testing', status: 'FAILURE'
+                        githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_creds', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Testing', status: 'FAILURE'
                         throw e
                     }
                 }
@@ -81,9 +95,9 @@ pipeline {
                             npx netlify status
                             npx netlify deploy --dir=build --prod
                         '''
-                        githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_token_new', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Deploy', status: 'SUCCESS'
+                        githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_creds', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Deploy', status: 'SUCCESS'
                     } catch (Exception e) {
-                        githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_token_new', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Deploy', status: 'FAILURE'
+                        githubNotify account: 'Aviral-Gupta101', credentialsId: 'github_creds', repo: 'learn-jenkins-app',  sha: env.GIT_COMMIT, context: 'Deploy', status: 'FAILURE'
                         throw e
                     }
                 }
