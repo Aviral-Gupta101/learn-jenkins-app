@@ -91,14 +91,10 @@ pipeline {
         }
     }
 
-    post {
-      always {
-          script {
-              node {
-                  junit 'test-results/junit.xml'
-              }
-          }
-    }
 }
 
+post {
+  always {
+    junit 'test-results/junit.xml'
+  }
 }
