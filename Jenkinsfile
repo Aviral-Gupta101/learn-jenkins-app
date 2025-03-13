@@ -9,18 +9,18 @@ pipeline {
 
     stages {
 
-      stage('Check Credential') {
-            steps {
-                script {
-                    echo ''
-                    // Echoing only if it's set (security-safe)
-                    if (env.GITHUB_TOKEN) {
-                        echo "GitHub token is set!"
-                    } else {
-                        echo "GitHub token is NOT set!"
-                    }
-                }
-            }
+      // stage('Check Credential') {
+      //       steps {
+      //           script {
+      //               echo ''
+      //               // Echoing only if it's set (security-safe)
+      //               if (env.GITHUB_TOKEN) {
+      //                   echo "GitHub token is set!"
+      //               } else {
+      //                   echo "GitHub token is NOT set!"
+      //               }
+      //           }
+      //       }
 
         stage('Initialize') {
             steps {
