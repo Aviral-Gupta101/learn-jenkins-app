@@ -4,23 +4,9 @@ pipeline {
     environment {
         NETLIFY_SITE_ID = 'c6b09b1d-7ec2-43f9-8f7e-9de8ad3cbe27'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
-        GITHUB_TOKEN = credentials('github_token_new')
     }
 
     stages {
-
-      // stage('Check Credential') {
-      //       steps {
-      //           script {
-      //               echo ''
-      //               // Echoing only if it's set (security-safe)
-      //               if (env.GITHUB_TOKEN) {
-      //                   echo "GitHub token is set!"
-      //               } else {
-      //                   echo "GitHub token is NOT set!"
-      //               }
-      //           }
-      //       }
 
         stage('Initialize') {
             steps {
@@ -106,8 +92,13 @@ pipeline {
     }
 
     post {
-        always {
-            junit 'test-results/junit.xml'
-        }
+      always {
+          script {
+              node {
+                  junit 'test-results/junit.xml'
+              }
+          }
     }
+}
+
 }
