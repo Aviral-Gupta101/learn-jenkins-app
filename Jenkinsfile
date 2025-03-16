@@ -100,7 +100,12 @@ pipeline {
     }
 
     post {
-      always {
+
+      success {
+        junit 'test-results/junit.xml'
+      }
+
+      failure {
         junit 'test-results/junit.xml'
       }
     }
