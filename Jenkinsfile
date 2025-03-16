@@ -62,6 +62,8 @@ pipeline {
                         throw e
                     }
                 }
+
+                junit 'test-results/junit.xml'
             }
         }
 
@@ -97,17 +99,6 @@ pipeline {
                 }
             }
         }
-    }
-
-    post {
-
-      success {
-        junit 'test-results/junit.xml'
-      }
-
-      failure {
-        junit 'test-results/junit.xml'
-      }
     }
 
 }
